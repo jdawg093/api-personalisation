@@ -1,0 +1,8 @@
+/dist
+/node_modules
+.env
+package-lock.json
+package.json
+api/autocomplete.js
+api/config.ts
+api/request.js

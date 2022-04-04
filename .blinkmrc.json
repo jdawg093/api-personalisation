@@ -1,0 +1,13 @@
+{
+  "server": {
+    "project": "your-api-here.api.oneblink.io",
+    "memorySize": 10240,
+    "routes": [
+      {
+        "route": "/receipt",
+        "module": "./dist/api/receipt.js"
+      }
+    ],
+    "cors": true
+  }
+}
