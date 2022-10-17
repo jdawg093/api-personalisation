@@ -6,6 +6,34 @@
       {
         "route": "/receipt",
         "module": "./dist/api/receipt.js"
+      },
+      {
+        "route": "/day",
+        "module": "./api/dayOfWeekTesting.js"
+      },
+      {
+        "route": "/countrycodes",
+        "module": "./api/countrycodes.js"
+      },
+      {
+        "route": "/validate-submission",
+        "module": "./dist/api/validateSubmission.js"
+      },
+      {
+        "route": "/receiptGeneration",
+        "module": "./api/receiptGen.js"
+      },
+      {
+        "route": "/supervisor",
+        "module": "./api/supervisor.js"
+      },
+      {
+        "route": "/position",
+        "module": "./api/position.js"
+      },
+      {
+        "route": "/optionset1",
+        "module": "./api/optionset1.js"
       }
     ],
     "cors": true
