@@ -4,7 +4,9 @@ import {
   OneBlinkAPIHostingRequest,
 } from "@oneblink/cli";
 import { FORMS_ACCESS_KEY, FORMS_SECRET_KEY, FORM_ID } from "./config";
-import { Forms } from "@oneblink/sdk/tenants/oneblink";
+import { Forms, FormsApps } from "@oneblink/sdk/tenants/oneblink";
+import Boom from "@hapi/boom";
+import { userService } from "@oneblink/sdk-core";
 
 const FormService = new Forms({
   accessKey: FORMS_ACCESS_KEY,
@@ -37,18 +39,54 @@ export async function post(
   req: OneBlinkAPIHostingRequest<{ body: unknown }>,
   res: OneBlinkAPIHostingResponse<{ submission: Record<string, unknown> }>
 ) {
-  const submissionId = "123";
+  const authHeader = req.headers.authorization;
+  if (typeof authHeader !== "string") {
+    throw Boom.badRequest("User must be logged in.");
+  }
+
+  // Get the user, must be logged in to ensure that this will work
+  const token = authHeader.split(" ")[1];
+  const jwtPayload = await FormsApps.verifyJWT(token);
+  const userProfile = userService.parseUserProfile(jwtPayload);
+  if (!userProfile) {
+    throw Boom.badRequest("Invalid User profile.");
+  }
+  const { username } = userProfile;
+
+  // Getting the date time for the range.
+  const now = new Date();
+  const startDateTimestamp = now.setDate(now.getDate() - 366);
+  const submissionDateFrom = new Date(startDateTimestamp).toISOString();
+  const { formSubmissionMeta } = await FormService.searchSubmissions({
+    formId: parseInt(FORM_ID as string),
+    submissionDateFrom,
+  });
+  const lastFormSubmissionMeta = formSubmissionMeta.filter(
+    (submission) => submission.user?.username === username
+  );
+  if (!lastFormSubmissionMeta) {
+    return;
+  }
+
+  //grab the submission ID, by getting the length of the array then subtracting 1 for latest submission
+  const submissionId =
+    lastFormSubmissionMeta[lastFormSubmissionMeta.length - 1].submissionId;
   console.log("Here is the submission id:", submissionId);
+
+  //Grab the submission data here
   const formSubmissionData = await FormService.getSubmissionData(
     parseInt(FORM_ID as string),
     submissionId as string,
     false
   );
   console.log("here is the formSubmissiomData", formSubmissionData);
+
+  //Validate the submission so we can be sure we have the right data
   const {
     submission: { User_Email, Contact_Number, Photos_Of_Books },
   } = validateSubmission(formSubmissionData);
   console.log(Photos_Of_Books);
+  //Return the submission with the values that are required
   return {
     submission: {
       Email: User_Email,
