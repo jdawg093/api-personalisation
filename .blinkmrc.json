@@ -38,6 +38,10 @@
       {
         "route": "/elementLookup",
         "module": "./api/elementLookup.js"
+      },
+      {
+        "route": "/dataLookup",
+        "module": "./api/dataLookup.js"
       }
     ],
     "cors": true

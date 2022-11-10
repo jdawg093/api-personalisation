@@ -36,6 +36,11 @@ module.exports.post = function (req, res) {
     (house) => house.houseNumber === houseNumber
   );
   console.log(filteredHouses);
+  if (!filteredHouses) {
+    return res.setStatusCode(400).setPayload({
+      message: "Could not find house required.",
+    });
+  }
   const permitTypes = [];
   filteredHouses.forEach((house) => {
     if (!permitTypes.includes(house.permitType)) {
@@ -56,6 +61,16 @@ module.exports.post = function (req, res) {
       options: permitTypes.map((permitType) => {
         return { value: permitType, label: permitType };
       }),
+      conditionallyShow: true,
+      conditionallyShowPredicates: [
+        {
+          elementId: "123-123-123-123", //Your element ID here
+          hasValue: true,
+          type: "VALUE",
+        },
+      ],
+      isDataLookup: true,
+      dataLookupId: 123, // Your lookup Id here
     })
   );
 
